@@ -1,7 +1,7 @@
 {
   "domain": "pricewatch",
   "name": "PriceWatch - AI Price Monitor",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "documentation": "https://github.com/jfp949/pricewatch-hacs",
   "issue_tracker": "https://github.com/jfp949/pricewatch-hacs/issues",
   "dependencies": [],
