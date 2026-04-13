@@ -32,7 +32,7 @@ AI-powered price monitor for Home Assistant. Track product prices across Austral
 ### Step 1 — Add via HACS
 
 1. Open HACS → **Integrations** → ⋮ menu → **Custom repositories**
-2. Add: `https://github.com/your-repo/pricewatch-hacs`  Type: `Integration`
+2. Add: `https://github.com/jfp949/pricewatch-hacs`  Type: `Integration`
 3. Search for **PriceWatch** and click **Download**
 4. Restart Home Assistant
 
