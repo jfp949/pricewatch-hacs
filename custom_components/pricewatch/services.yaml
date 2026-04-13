@@ -1,0 +1,45 @@
+add_monitor:
+  name: Add Price Monitor
+  description: Add a product to monitor for price drops.
+  fields:
+    product:
+      name: Product name
+      description: "Product to search for (e.g. 'Sony WH-1000XM5 headphones')"
+      required: true
+      example: "Sony WH-1000XM5 headphones"
+      selector:
+        text:
+    email:
+      name: Alert email
+      description: Email address to receive price drop alerts
+      required: true
+      example: "you@email.com"
+      selector:
+        text:
+          type: email
+    threshold:
+      name: Alert threshold (%)
+      description: Percentage price drop that triggers an email alert
+      required: false
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 50
+          unit_of_measurement: "%"
+
+remove_monitor:
+  name: Remove Monitor
+  description: Remove a product from price monitoring.
+  fields:
+    monitor_id:
+      name: Monitor ID
+      description: The 8-character monitor ID (visible in the sensor's attributes)
+      required: true
+      example: "a3f8b2c1"
+      selector:
+        text:
+
+scan_now:
+  name: Scan Now
+  description: Immediately trigger a price scan for all monitored products.

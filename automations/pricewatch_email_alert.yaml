@@ -1,0 +1,127 @@
+# automations/pricewatch_email_alert.yaml
+#
+# This automation fires when PriceWatch detects a price drop
+# that exceeds a monitor's threshold. It sends a rich HTML email
+# via your configured notify service.
+#
+# Prerequisites:
+#   1. An email notify service configured in HA (e.g. notify.gmail or notify.smtp)
+#   2. PriceWatch integration installed and at least one monitor active
+#
+# To install:
+#   Copy this file to your HA config/automations/ folder and
+#   add to configuration.yaml:
+#     automation: !include_dir_merge_list automations/
+
+- id: pricewatch_price_drop_email
+  alias: "PriceWatch: Send price drop email alert"
+  description: >
+    Fires when a monitored product's price drops below the configured
+    threshold, sending an HTML email via HA notify.
+  mode: parallel
+  max: 10
+  trigger:
+    - platform: event
+      event_type: pricewatch_price_drop
+  condition:
+    - condition: template
+      value_template: >
+        {{ trigger.event.data.drop_percent | float >= 0 }}
+  action:
+    - service: notify.notify
+      data:
+        title: >
+          💰 Price Drop: {{ trigger.event.data.product }}
+        message: >
+          Great news! The price of {{ trigger.event.data.product }}
+          has dropped {{ trigger.event.data.drop_percent }}%.
+          Now: ${{ trigger.event.data.new_price }} AUD at {{ trigger.event.data.store }}.
+          Was: ${{ trigger.event.data.old_price }} AUD.
+          You save: ${{ (trigger.event.data.old_price - trigger.event.data.new_price) | round(2) }} AUD.
+        data:
+          # HTML message for SMTP notify service
+          html: >
+            <html>
+            <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+              <div style="background:#0a0e1a;color:white;padding:20px;border-radius:12px 12px 0 0;">
+                <h2 style="margin:0;font-size:1.3rem;">📡 PriceWatch Alert</h2>
+                <p style="margin:4px 0 0;font-size:0.8rem;opacity:0.6;font-family:monospace;">
+                  PRICE DROP DETECTED
+                </p>
+              </div>
+              <div style="background:#f8fafc;padding:20px;border:1px solid #e2e8f0;border-top:none;">
+                <h3 style="margin:0 0 16px;color:#1e293b;">
+                  {{ trigger.event.data.product }}
+                </h3>
+                <table style="width:100%;border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:8px 0;color:#64748b;font-size:0.88rem;">New price</td>
+                    <td style="padding:8px 0;font-size:1.2rem;font-weight:bold;color:#22c55e;text-align:right;">
+                      ${{ trigger.event.data.new_price }} AUD
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid #e2e8f0;">
+                    <td style="padding:8px 0;color:#64748b;font-size:0.88rem;">Was</td>
+                    <td style="padding:8px 0;color:#94a3b8;text-decoration:line-through;text-align:right;">
+                      ${{ trigger.event.data.old_price }} AUD
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid #e2e8f0;">
+                    <td style="padding:8px 0;color:#64748b;font-size:0.88rem;">Retailer</td>
+                    <td style="padding:8px 0;text-align:right;font-weight:500;">
+                      {{ trigger.event.data.store }}
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid #e2e8f0;">
+                    <td style="padding:8px 0;color:#64748b;font-size:0.88rem;">You save</td>
+                    <td style="padding:8px 0;text-align:right;color:#3b82f6;font-weight:bold;">
+                      ${{ (trigger.event.data.old_price - trigger.event.data.new_price) | round(2) }} AUD
+                      ({{ trigger.event.data.drop_percent }}%)
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div style="background:#e0f2fe;padding:12px 20px;border-radius:0 0 12px 12px;
+                          font-size:0.78rem;color:#0369a1;">
+                This alert was sent by PriceWatch running on your Home Assistant.
+              </div>
+            </body>
+            </html>
+          to: "{{ trigger.event.data.email }}"
+
+    # Also push a mobile notification if HA companion app is installed
+    - service: notify.mobile_app
+      continue_on_error: true
+      data:
+        title: "💰 {{ trigger.event.data.product }}"
+        message: >
+          Price dropped {{ trigger.event.data.drop_percent }}%!
+          Now ${{ trigger.event.data.new_price }} at {{ trigger.event.data.store }}
+        data:
+          url: "https://www.google.com/search?q={{ trigger.event.data.product | urlencode }}+price+australia"
+          push:
+            sound: default
+
+
+- id: pricewatch_daily_summary
+  alias: "PriceWatch: Daily price summary notification"
+  description: >
+    Sends a daily digest of all monitored products and their current prices
+    every morning at 8am.
+  trigger:
+    - platform: time
+      at: "08:00:00"
+  condition:
+    - condition: template
+      value_template: >
+        {{ states | selectattr('entity_id', 'search', 'sensor.pricewatch_') | list | length > 0 }}
+  action:
+    - service: notify.notify
+      data:
+        title: "📡 PriceWatch Daily Summary"
+        message: >
+          {% set monitors = states | selectattr('entity_id', 'search', 'sensor.pricewatch_') | list %}
+          Monitoring {{ monitors | length }} product(s):
+          {% for m in monitors %}
+          • {{ m.attributes.product }}: ${{ m.state }} at {{ m.attributes.store or 'unknown' }}
+          {% endfor %}

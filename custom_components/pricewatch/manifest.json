@@ -1,0 +1,18 @@
+{
+  "domain": "pricewatch",
+  "name": "PriceWatch - AI Price Monitor",
+  "version": "1.0.0",
+  "documentation": "https://github.com/your-repo/pricewatch-hacs",
+  "issue_tracker": "https://github.com/your-repo/pricewatch-hacs/issues",
+  "dependencies": [],
+  "codeowners": ["@your-github-handle"],
+  "requirements": ["aiohttp>=3.8.0", "async-timeout>=4.0.0"],
+  "iot_class": "cloud_polling",
+  "config_flow": true,
+  "hacs": {
+    "name": "PriceWatch",
+    "content_in_root": false,
+    "filename": "pricewatch.zip",
+    "render_readme": true
+  }
+}

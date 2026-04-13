@@ -1,0 +1,66 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "PriceWatch Setup",
+        "description": "Configure your PriceWatch AI price monitor. You can add products to monitor via the dashboard card or via the `pricewatch.add_monitor` service after setup.",
+        "data": {
+          "scan_interval": "Scan interval (hours)",
+          "email_notify_service": "HA notify service for alerts (e.g. notify.gmail)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Anthropic API",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "PriceWatch is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "PriceWatch Options",
+        "data": {
+          "scan_interval": "Scan interval (hours)",
+          "email_notify_service": "HA notify service name"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_monitor": {
+      "name": "Add Price Monitor",
+      "description": "Add a product to monitor for price drops.",
+      "fields": {
+        "product": {
+          "name": "Product",
+          "description": "Product name to search for (e.g. 'Sony WH-1000XM5 headphones')"
+        },
+        "email": {
+          "name": "Alert email",
+          "description": "Email address to receive price drop alerts"
+        },
+        "threshold": {
+          "name": "Alert threshold (%)",
+          "description": "Percentage price drop that triggers an alert (1-50)"
+        }
+      }
+    },
+    "remove_monitor": {
+      "name": "Remove Monitor",
+      "description": "Remove a product from price monitoring.",
+      "fields": {
+        "monitor_id": {
+          "name": "Monitor ID",
+          "description": "ID of the monitor to remove (visible in sensor attributes)"
+        }
+      }
+    },
+    "scan_now": {
+      "name": "Scan Now",
+      "description": "Immediately re-scan all monitored products for price changes."
+    }
+  }
+}
