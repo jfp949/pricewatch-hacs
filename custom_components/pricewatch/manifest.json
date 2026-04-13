@@ -10,10 +10,4 @@
   "iot_class": "cloud_polling",
   "config_flow": true,
   "frontend_extra_module_url": "/local/pricewatch/pricewatch-card.js"
-  "hacs": {
-    "name": "PriceWatch",
-    "content_in_root": false,
-    "filename": "pricewatch.zip",
-    "render_readme": true
-  }
 }
